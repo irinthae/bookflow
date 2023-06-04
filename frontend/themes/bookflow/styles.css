@@ -1,9 +1,9 @@
 @import url('./main-layout.css');
     [theme~="dark"] {
       --lumo-base-color: hsl(0, 0%, 11%);
-      --lumo-primary-color: hsl(39, 23%, 51%);
-      --lumo-primary-color-50pct: hsla(39, 23%, 51%, 0.5);
-      --lumo-primary-color-10pct: hsla(39, 23%, 51%, 0.1);
+      --lumo-primary-color: hsl(192, 43%, 56%);
+      --lumo-primary-color-50pct: hsla(192, 43%, 56%, 0.5);
+      --lumo-primary-color-10pct: hsla(192, 43%, 56%, 0.1);
       --lumo-shade-5pct: hsla(42, 0%, 99%, 0.05);
       --lumo-shade-10pct: hsla(42, 0%, 99%, 0.1);
       --lumo-shade-20pct: hsla(42, 0%, 99%, 0.2);
@@ -19,7 +19,7 @@
       --lumo-success-color-50pct: hsla(145, 54%, 40%, 0.5);
       --lumo-success-color-10pct: hsla(145, 54%, 40%, 0.1);
       --lumo-shade: hsla(42, 0%, 99%, 1);
-      --lumo-primary-text-color: hsl(46, 36%, 63%);
+      --lumo-primary-text-color: hsl(192, 43%, 56%);
       --lumo-error-color: hsl(3, 70%, 64%);
       --lumo-error-text-color: hsl(3, 49%, 51%);
       --lumo-success-color: hsl(145, 54%, 40%);

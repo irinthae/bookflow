@@ -2,7 +2,8 @@ package com.example.application.views;
 
 import com.example.application.components.appnav.AppNav;
 import com.example.application.components.appnav.AppNavItem;
-import com.example.application.views.empty.EmptyView;
+import com.example.application.views.book.BookListView;
+import com.example.application.views.library.LibraryListView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.Footer;
@@ -54,7 +55,8 @@ public class MainLayout extends AppLayout {
         // SideNav component.
         AppNav nav = new AppNav();
 
-        nav.addItem(new AppNavItem("Empty", EmptyView.class, LineAwesomeIcon.FILE_SOLID.create()));
+        nav.addItem(new AppNavItem("Libraries", LibraryListView.class, LineAwesomeIcon.BUILDING_SOLID.create()),
+                    new AppNavItem("Books", BookListView.class, LineAwesomeIcon.BOOK_OPEN_SOLID.create()));
 
         return nav;
     }
