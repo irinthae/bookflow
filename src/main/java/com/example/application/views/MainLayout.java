@@ -1,80 +1,104 @@
 package com.example.application.views;
 
-import com.example.application.components.appnav.AppNav;
-import com.example.application.components.appnav.AppNavItem;
+import com.example.application.Application;
+import com.example.application.components.UIFactory;
 import com.example.application.views.book.BookListView;
 import com.example.application.views.library.LibraryListView;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
-/**
- * The main view is a top-level placeholder for other views.
- */
 public class MainLayout extends AppLayout {
 
-    private H2 viewTitle;
+    private final H2 viewTitleContainer = new H2();
 
     public MainLayout() {
         setPrimarySection(Section.DRAWER);
-        addDrawerContent();
-        addHeaderContent();
+        initUI();
     }
 
-    private void addHeaderContent() {
-        DrawerToggle toggle = new DrawerToggle();
-        toggle.getElement().setAttribute("aria-label", "Menu toggle");
-
-        viewTitle = new H2();
-        viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-
-        addToNavbar(true, toggle, viewTitle);
+    private void initUI() {
+        addToDrawer(createDrawerHeader());
+        addToDrawer(new Scroller(createNavigation()));
+        addToDrawer(new Footer());
+        addToNavbar(true, createContentHeader());
     }
 
-    private void addDrawerContent() {
-        H1 appName = new H1("BookFlow");
-        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+    private Component createDrawerHeader() {
+        H1 appName = new H1(Application.APP_TITLE);
+        //appName.getStyle().set("color", "#5FACBF7F");
         Header header = new Header(appName);
+        header.getStyle().set("background-color", "#795548");
+        header.setHeight("77px");
 
-        Scroller scroller = new Scroller(createNavigation());
-
-        addToDrawer(header, scroller, createFooter());
+        return header;
     }
 
-    private AppNav createNavigation() {
-        // AppNav is not an official component.
-        // For documentation, visit https://github.com/vaadin/vcf-nav#readme
-        // Starting with v24.1, AppNav will be replaced with the official
-        // SideNav component.
-        AppNav nav = new AppNav();
-
-        nav.addItem(new AppNavItem("Libraries", LibraryListView.class, LineAwesomeIcon.BUILDING_SOLID.create()),
-                    new AppNavItem("Books", BookListView.class, LineAwesomeIcon.BOOK_OPEN_SOLID.create()));
+    private Component createNavigation() {
+        Div nav = UIFactory.appNav();
+        nav.add(
+                UIFactory.createNavItem(LibraryListView.class, LineAwesomeIcon.BUILDING_SOLID.create()),
+                UIFactory.createNavItem(BookListView.class, LineAwesomeIcon.BOOK_SOLID.create())
+        );
 
         return nav;
     }
 
-    private Footer createFooter() {
-        Footer layout = new Footer();
+    private Component createContentHeader() {
+        HorizontalLayout layout = new HorizontalLayout();
+
+        layout.setWidthFull();
+        layout.setSpacing(true);
+        layout.setPadding(true);
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.getStyle().set("background-color", "#c4bcb9");
+        layout.setHeight("77px");
+
+        DrawerToggle toggle = new DrawerToggle();
+        toggle.getStyle().set("color", "#212121");
+
+        layout.add(toggle, viewTitleContainer);
 
         return layout;
     }
 
+
+    // -- READ BREADCRUMB ----------------------------------------------------------------------------------------------
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
-        viewTitle.setText(getCurrentPageTitle());
+
+        String[] elements = getCurrentPageTitle().split("\\|");
+        viewTitleContainer.removeAll();
+        int length = elements.length;
+
+        // Create Breadcrumb e.g: Employee > Edit - set css arrow between elements
+        for (int i = 0; i < length; i++) {
+            viewTitleContainer.add(elements[i]);
+            if (i < length - 1) {
+                Span arrow = new Span();
+                arrow.addClassNames("arrow", "arrow-right");
+                viewTitleContainer.add(arrow);
+            }
+        }
     }
 
     private String getCurrentPageTitle() {
+        Component content = getContent();
+        if (content instanceof HasDynamicTitle dynamicTitle) {
+            return dynamicTitle.getPageTitle();
+        }
+
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
     }
 }
+

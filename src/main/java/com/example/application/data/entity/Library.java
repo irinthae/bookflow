@@ -67,5 +67,8 @@ public class Library implements Serializable {
         book.setLibrary(null);
     }
 
-
+    @Override
+    public String toString() {
+        return name;
+    }
 }

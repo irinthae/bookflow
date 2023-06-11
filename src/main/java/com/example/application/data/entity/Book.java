@@ -24,6 +24,9 @@ public class Book implements Serializable {
     @Column(name = "author")
     private String author;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @NotNull
     @Column(name = "language1")
     @Enumerated(EnumType.STRING)
@@ -45,10 +48,6 @@ public class Book implements Serializable {
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
     private Category category;
-
-    /*@NotNull
-    @Column(name = "availability")
-    private Boolean availability;*/
 
     @Size(max = 1000)
     @Column(name = "content")
@@ -80,6 +79,14 @@ public class Book implements Serializable {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Language getLanguage1() {
@@ -121,14 +128,6 @@ public class Book implements Serializable {
     public void setCategory(Category category) {
         this.category = category;
     }
-
-    /*public Boolean getAvailability() {
-        return availability;
-    }
-
-    public void setAvailability(Boolean availability) {
-        this.availability = availability;
-    }*/
 
     public String getContent() {
         return content;
