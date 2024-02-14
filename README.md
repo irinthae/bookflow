@@ -1,7 +1,7 @@
 # BookFlow
 
 Vaadin application with Spring Boot. 
-Project accompanying programming lessons at the HTL (4th semester) 
+Project accompanying programming lessons at the HTL (4th semester  2022/23) 
 
 ## Running the application
 
