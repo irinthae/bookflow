@@ -43,7 +43,24 @@
         </dependencies>
     </dependencyManagement>
 
+
     <dependencies>
+
+        <!-- STREAMER-->
+
+        <dependency>
+            <groupId>com.speedment.jpastreamer</groupId>
+            <artifactId>jpastreamer-core</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.speedment.jpastreamer.integration.spring</groupId>
+            <artifactId>spring-boot-jpastreamer-autoconfigure</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.vaadin</groupId>
             <!-- Replace artifactId with vaadin-core to use only free components -->
@@ -99,6 +116,7 @@
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -156,6 +174,8 @@
                             </execution>
                         </executions>
                     </plugin>
+
+
                 </plugins>
             </build>
         </profile>

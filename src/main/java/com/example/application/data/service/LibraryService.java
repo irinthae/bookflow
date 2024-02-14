@@ -8,13 +8,14 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-
 import com.vaadin.flow.data.provider.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Component
+@Service
 public class LibraryService {
 
     private final LibraryRepository libraryRepository;
@@ -26,19 +27,58 @@ public class LibraryService {
         this.bookRepository = bookRepository;
     }
 
+    // -- LIBRARY ------------------------------------------------------------------------------------------------------
+
     public void update(Library library) {
         libraryRepository.save(library);
     }
 
-    public void update(Book book) {
-        bookRepository.save(book);
+    public void delete(Library library) {
+        libraryRepository.delete(library);
     }
 
     public Optional<Library> findLibraryById(Long libraryID) {
         if (libraryID == null) {
             return Optional.empty();
         }
+
         return libraryRepository.findById(libraryID);
+
+    }
+
+    public Stream<Library> findAllLibraries(PageRequest pageRequest) {
+        return libraryRepository.findAll(pageRequest).stream();
+    }
+
+    public Library findLibraryByBookId(Long bookId) {
+        return libraryRepository.findLibraryByBookId(bookId);
+    }
+
+    public Stream<String> findLibraryLabels(PageRequest pageRequest) {
+        return libraryRepository.findLabels(pageRequest).stream();
+    }
+
+    public Long findLibraryIdByName(String name) {
+        return libraryRepository.findLibraryIdByName(name);
+    }
+
+    public long countLibraries() {
+        return libraryRepository.count();
+    }
+
+    // -- BOOK ---------------------------------------------------------------------------------------------------------
+
+    public void update(Book book) {
+        bookRepository.save(book);
+    }
+
+    public void delete(Book book) {
+        bookRepository.delete(book);
+    }
+
+    @Transactional
+    public void updateReference(Long bookId, Long library) {
+        bookRepository.updateReference(bookId, library);
     }
 
     public Optional<Book> findBookById(Long bookID) {
@@ -48,25 +88,12 @@ public class LibraryService {
         return bookRepository.findById(bookID);
     }
 
-    public Stream<Library> findAllLibraries(PageRequest pageRequest) {
-        return libraryRepository.findAll(pageRequest).stream();
-    }
-
     public Stream<Book> findAllBooks(PageRequest pageRequest) {
         return bookRepository.findAll(pageRequest).stream();
     }
 
-    public void deleteByID(Long id) {
-        libraryRepository.deleteById(id);
-    }
-
     public Stream<Book> findBooksByLibraryId(Long id, Pageable pageable) {
         return bookRepository.findByLibrary_Id(id, pageable).stream();
-    }
-
-    //TODO
-    public Library findLibraryByBookId(Long bookId) {
-        return libraryRepository.findLibraryByBook_Id(bookId);
     }
 
     public long countBooks() {
@@ -75,10 +102,6 @@ public class LibraryService {
 
     public long countBooksByLibraryId(Long libraryId) {
         return bookRepository.countLibraryId(libraryId);
-    }
-
-    public long countLibraries() {
-        return libraryRepository.count();
     }
 
     public Stream<Book> findBooks(String keyword, Query<Book, Void> query) {

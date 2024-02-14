@@ -13,7 +13,8 @@ import java.util.Set;
 public class Library implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
+    @SequenceGenerator(name = "idgenerator", initialValue = 100)
     private Long id;
 
     @NotNull

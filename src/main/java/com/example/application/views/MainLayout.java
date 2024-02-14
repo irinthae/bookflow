@@ -1,104 +1,95 @@
 package com.example.application.views;
 
-import com.example.application.Application;
 import com.example.application.components.UIFactory;
+import com.example.application.views.book.BookCreateView;
 import com.example.application.views.book.BookListView;
+import com.example.application.views.landingPage.LandingPageView;
+import com.example.application.views.library.LibraryCreateView;
 import com.example.application.views.library.LibraryListView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.Scroller;
-import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.vaadin.lineawesome.LineAwesomeIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class MainLayout extends AppLayout {
 
-    private final H2 viewTitleContainer = new H2();
-
     public MainLayout() {
-        setPrimarySection(Section.DRAWER);
         initUI();
     }
 
     private void initUI() {
-        addToDrawer(createDrawerHeader());
-        addToDrawer(new Scroller(createNavigation()));
-        addToDrawer(new Footer());
-        addToNavbar(true, createContentHeader());
+        setPrimarySection(Section.DRAWER);
+        addToNavbar(createHeaderContent());
     }
 
-    private Component createDrawerHeader() {
-        H1 appName = new H1(Application.APP_TITLE);
-        //appName.getStyle().set("color", "#5FACBF7F");
-        Header header = new Header(appName);
-        header.getStyle().set("background-color", "#795548");
-        header.setHeight("77px");
-
-        return header;
-    }
-
-    private Component createNavigation() {
-        Div nav = UIFactory.appNav();
-        nav.add(
-                UIFactory.createNavItem(LibraryListView.class, LineAwesomeIcon.BUILDING_SOLID.create()),
-                UIFactory.createNavItem(BookListView.class, LineAwesomeIcon.BOOK_SOLID.create())
-        );
-
-        return nav;
-    }
-
-    private Component createContentHeader() {
+    private Component createHeaderContent() {
         HorizontalLayout layout = new HorizontalLayout();
-
-        layout.setWidthFull();
-        layout.setSpacing(true);
+        layout.setWidth("100%");
         layout.setPadding(true);
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.getStyle().set("background-color", "#c4bcb9");
-        layout.setHeight("77px");
+        Component menuBar = createMenuBar();
+        Component logo = createApplicationTitle();
 
-        DrawerToggle toggle = new DrawerToggle();
-        toggle.getStyle().set("color", "#212121");
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.EVENLY);
+        layout.setAlignSelf(FlexComponent.Alignment.START, logo);
+        layout.setAlignSelf(FlexComponent.Alignment.END, menuBar);
 
-        layout.add(toggle, viewTitleContainer);
+        layout.add(menuBar, logo, creatPlaceHolder());
 
         return layout;
     }
 
+    private Component createApplicationTitle() {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("30%");
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        layout.setClassName("app-title");
+        Image image = new Image("images/logo.png", "image");
 
-    // -- READ BREADCRUMB ----------------------------------------------------------------------------------------------
-    @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
+        layout.setHeight("80px");
+        layout.getStyle().set("cursor", "pointer");
+        layout.addClickListener(e -> backToLandingPage());
 
-        String[] elements = getCurrentPageTitle().split("\\|");
-        viewTitleContainer.removeAll();
-        int length = elements.length;
+        layout.add(image);
 
-        // Create Breadcrumb e.g: Employee > Edit - set css arrow between elements
-        for (int i = 0; i < length; i++) {
-            viewTitleContainer.add(elements[i]);
-            if (i < length - 1) {
-                Span arrow = new Span();
-                arrow.addClassNames("arrow", "arrow-right");
-                viewTitleContainer.add(arrow);
-            }
-        }
+        return layout;
     }
 
-    private String getCurrentPageTitle() {
-        Component content = getContent();
-        if (content instanceof HasDynamicTitle dynamicTitle) {
-            return dynamicTitle.getPageTitle();
-        }
+    private Component createMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.addThemeVariants(MenuBarVariant.LUMO_TERTIARY_INLINE);
+        //menuBar.setOpenOnHover(true);
+        menuBar.setWidth("30%");
+        MenuItem library = menuBar.addItem("Library");
+        library.addClassName("menu-item");
+        MenuItem book = menuBar.addItem("Books");
+        book.addClassName("menu-item");
 
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "" : title.value();
+        SubMenu librarySubMenu = library.getSubMenu();
+        librarySubMenu.addItem(UIFactory.createNavItem(LibraryListView.class));
+        librarySubMenu.addItem(UIFactory.createNavItem(LibraryCreateView.class));
+
+        SubMenu bokSubMenu = book.getSubMenu();
+        bokSubMenu.addItem(UIFactory.createNavItem(BookListView.class));
+        bokSubMenu.addItem(UIFactory.createNavItem(BookCreateView.class));
+
+        return menuBar;
+    }
+
+    private Component creatPlaceHolder() {
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.setWidth("30%");
+
+        return  layout;
+    }
+
+    private void backToLandingPage() {
+        getUI().ifPresent(ui -> ui.navigate(LandingPageView.class));
     }
 }
 

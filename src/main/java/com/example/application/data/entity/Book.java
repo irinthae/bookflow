@@ -6,14 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
-import java.time.Year;
 
 @Entity
 @Table(name = "BOOK")
 public class Book implements Serializable {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "idgenerator")
+    @SequenceGenerator(name = "idgenerator", initialValue = 100)
     private Long id;
 
     @NotBlank

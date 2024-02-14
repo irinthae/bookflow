@@ -5,7 +5,6 @@ import com.example.application.components.UIFactory;
 import com.example.application.data.entity.Book;
 import com.example.application.data.entity.Category;
 import com.example.application.data.entity.Language;
-import com.example.application.data.entity.Library;
 import com.example.application.data.service.LibraryService;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -16,19 +15,19 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.SucceededEvent;
+import com.vaadin.flow.component.upload.FinishedEvent;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.stream.Stream;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -42,13 +41,17 @@ public class BookForm extends Div {
     private final IntegerField pages = new IntegerField("Pages");
     private final ComboBox<Category> category = new ComboBox<>("Category");
     private final TextArea content = new TextArea("Content");
+    private final ComboBox<String> libraryLabels = new ComboBox<>("Library");
 
-    public ComboBox<Library> libraryBook = new ComboBox<>("Library");
-
-    //TODO
     private final Binder<Book> binder = new BeanValidationBinder<>(Book.class);
+    private final LibraryService service;
 
     private Upload upload;
+
+    @Autowired
+    public BookForm(LibraryService service) {
+        this.service = service;
+    }
 
     @PostConstruct
     private void init() {
@@ -58,30 +61,37 @@ public class BookForm extends Div {
         content.getElement().setAttribute("colspan", "2");
         content.setHeight("300px");
 
-        add(createUploadForm(), new FormLayout(title, author, language1, yearOfPublication, pages, category, libraryBook, content));
+        this.add(createUploadForm(), new FormLayout(title, author, language1, yearOfPublication, pages, category, libraryLabels, content));
 
         binder.bindInstanceFields(this);
     }
 
-    private HorizontalLayout createUploadForm() {
-        FileBuffer fileBuffer = new FileBuffer(fileName -> new File("data/images/", fileName).getCanonicalFile() );
-        upload = new Upload(fileBuffer);
-        upload.addSucceededListener(this::onUploadSuccess);
-        upload.setWidthFull();
+    private void setComboboxes() {
+        language1.setItems(Language.values());
+        category.setItems(Category.values());
+        libraryLabels.setItems(query -> service.findLibraryLabels(VaadinSpringDataHelpers.toSpringPageRequest(query)));
+    }
 
-        image.setMaxHeight("100px");
-        image.getStyle().set("margin-right", "10px");
+    private HorizontalLayout createUploadForm() {
+        image.addClassName("image-upload");
+
+        FileBuffer fileBuffer = new FileBuffer(fileName -> new File("data/images/", fileName).getCanonicalFile());
+        upload = new Upload(fileBuffer);
+        upload.addFinishedListener(this::onUploadFinished);
+        upload.setWidthFull();
+        upload.setMaxFileSize(5000000);
 
         HorizontalLayout profileLayout = new HorizontalLayout(image, upload);
         profileLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        profileLayout.setVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        profileLayout.setAlignSelf(FlexComponent.Alignment.START, image);
+        profileLayout.setAlignSelf(FlexComponent.Alignment.END, upload);
         imageUrl.setEnabled(false);
 
         return profileLayout;
     }
 
-    private void onUploadSuccess(SucceededEvent event) {
-        String fileName = event.getFileName();
+    private void onUploadFinished(FinishedEvent finishedEvent) {
+        String fileName = finishedEvent.getFileName();
         String imageSrc = "data/images/" + fileName;
         String name = title.getValue();
         setImage(name, imageSrc);
@@ -92,9 +102,8 @@ public class BookForm extends Div {
         imageUrl.setValue(imageSrc);
     }
 
-    private void setComboboxes() {
-        language1.setItems(Language.values());
-        category.setItems(Category.values());
+    public Book getBook() {
+        return binder.getBean();
     }
 
     public void setBook(Book book) {
@@ -106,13 +115,22 @@ public class BookForm extends Div {
         setImage(book.getTitle(), book.getImageUrl() );
     }
 
-    public Book getBook() {
-        return binder.getBean();
+    public String getLibraryLabelsValue() {
+        return libraryLabels.getValue();
+    }
+
+    public void setLibraryLabelsValue(String value) {
+        libraryLabels.setValue(value);
     }
 
     public boolean isValid() {
         binder.validate();
-        return binder.isValid();
+        return binder.isValid() && this.libraryLabels.getValue() != null;
     }
 
+    public void refresh() {
+        binder.readBean(new Book());
+        upload.clearFileList();
+        image.setSrc(Application.DEFAULT_IMAGE);
+    }
 }
