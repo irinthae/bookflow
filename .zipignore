@@ -1,0 +1,34 @@
+#########################################
+#           USE GLOB SYNTAX             #
+#########################################
+# *         = match everything
+# **        = 0 .. 1 Dir
+# ?         = Single char
+# [seq]     = any char in sequence
+# [!seq]    = any char NOT in sequence
+# etc.
+#########################################
+
+
+.idea
+*.class
+**/*.class
+*.ctxt
+target
+logs
+bin
+_tmp
+tmp
+temp
+node_modules
+logs
+package-lock.json
+frontend/generated
+vite.generated.ts
+README-DEV.md
+deploy.cmd
+.mvn
+lib
+doc
+
+
